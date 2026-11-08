@@ -31,11 +31,11 @@
 #include <std_msgs/msg/float32_multi_array.hpp>
 #include <std_srvs/srv/trigger.hpp>
 #include <std_srvs/srv/set_bool.hpp>
+#include <std_srvs/srv/empty.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 #include "planner_common/ros2_compat.h"
 #include "planner_common/ros2_compat.h"
 
-#include "adaptive_obb/adaptive_obb.h"
 #include "gbplanner/gbplanner_rviz.h"
 #include "planner_common/geofence_manager.h"
 #include "planner_common/graph.h"
@@ -143,9 +143,9 @@ class Rrg {
   };
  
 
-  Rrg(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private);
+  Rrg(const ros2_compat::NodeHandle& nh, const ros2_compat::NodeHandle& nh_private);
   // If the external map manager is to be passed
-  Rrg(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private,
+  Rrg(const ros2_compat::NodeHandle& nh, const ros2_compat::NodeHandle& nh_private,
       MapManager* map_manager);
 
   // Initialize the graph to start a new planning session.
@@ -401,34 +401,33 @@ class Rrg {
 
   std::string world_frame_ = "world";
 
-  ros::NodeHandle nh_;
-  ros::NodeHandle nh_private_;
+  ros2_compat::NodeHandle nh_;
+  ros2_compat::NodeHandle nh_private_;
 
-  tf::TransformListener* listener_;
 
-  ros::Publisher time_log_pub_;
-  ros::Publisher pci_reset_pub_;
-  ros::Publisher local_free_map_pub_;
-  ros::Publisher path_pub_;
-  ros::Publisher free_cloud_pub_;
-  ros::Publisher entry_point_pub_;
-  ros::Publisher local_target_pub_;
+  ros2_compat::Publisher time_log_pub_;
+  ros2_compat::Publisher pci_reset_pub_;
+  ros2_compat::Publisher local_free_map_pub_;
+  ros2_compat::Publisher path_pub_;
+  ros2_compat::Publisher free_cloud_pub_;
+  ros2_compat::Publisher entry_point_pub_;
+  ros2_compat::Publisher local_target_pub_;
 
-  ros::Subscriber semantics_subscriber_;
-  ros::Subscriber stop_srv_subscriber_;
-  ros::Subscriber opening_detection_sub_;
-  ros::Subscriber query_pt_sub_;
-  ros::Subscriber cam_pitch_sub_;
-  ros::Subscriber ele_map_sub_;
+  ros2_compat::Subscriber semantics_subscriber_;
+  ros2_compat::Subscriber stop_srv_subscriber_;
+  ros2_compat::Subscriber opening_detection_sub_;
+  ros2_compat::Subscriber query_pt_sub_;
+  ros2_compat::Subscriber cam_pitch_sub_;
+  ros2_compat::Subscriber ele_map_sub_;
 
-  ros::ServiceClient pci_homing_;
-  ros::ServiceClient landing_srv_client_;
-  ros::ServiceServer reset_timer_srv_;
-  ros::ServiceServer pass_opening_srv_;
-  ros::ServiceServer approve_passing_srv_;
-  ros::ServiceServer reset_map_srv_;
-  ros::ServiceServer query_srv_;
-  ros::ServiceServer remove_geofence_srv_;
+  ros2_compat::ServiceClient<std_srvs::srv::Trigger> pci_homing_;
+  ros2_compat::ServiceClient<std_srvs::srv::Empty> landing_srv_client_;
+  ros2_compat::ServiceServer reset_timer_srv_;
+  ros2_compat::ServiceServer pass_opening_srv_;
+  ros2_compat::ServiceServer approve_passing_srv_;
+  ros2_compat::ServiceServer reset_map_srv_;
+  ros2_compat::ServiceServer query_srv_;
+  ros2_compat::ServiceServer remove_geofence_srv_;
 
   bool resetTimerCallback(std_srvs::srv::Trigger::Request &req, std_srvs::srv::Trigger::Response &res);
   bool getOpeningPathCallback(std_srvs::srv::Trigger::Request &req, std_srvs::srv::Trigger::Response &res);
@@ -476,8 +475,8 @@ class Rrg {
   // Current exploring direction.
   double exploring_direction_;
   const double kTimerPeriod = 0.25;
-  ros::Timer periodic_timer_;
-  void timerCallback(const ros::TimerEvent& event);
+  ros2_compat::Timer periodic_timer_;
+  void timerCallback(const ros2_compat::TimerEvent& event);
   int dir_change_count_ = 0;
 
   std::queue<StateVec> robot_state_queue_;
@@ -485,17 +484,17 @@ class Rrg {
   const double kGlobalGraphUpdateTimerPeriod = 0.5;
   const double kGlobalGraphFrontierAdditionTimerPeriod = 1.0;
   const double kGlobalGraphUpdateTimeBudget = 0.1;
-  ros::Timer global_graph_update_timer_;
-  void expandGlobalGraphTimerCallback(const ros::TimerEvent& event);
-  ros::Timer global_graph_frontier_addition_timer_;
+  ros2_compat::Timer global_graph_update_timer_;
+  void expandGlobalGraphTimerCallback(const ros2_compat::TimerEvent& event);
+  ros2_compat::Timer global_graph_frontier_addition_timer_;
   void expandGlobalGraphFrontierAdditionTimerCallback(
-      const ros::TimerEvent& event);
-  ros::Timer camera_annotation_timer_;
-  void cameraAnnotationTimerCallback(const ros::TimerEvent& event);
+      const ros2_compat::TimerEvent& event);
+  ros2_compat::Timer camera_annotation_timer_;
+  void cameraAnnotationTimerCallback(const ros2_compat::TimerEvent& event);
 
   const double kFreePointCloudUpdatePeriod = 0.5;
-  ros::Timer free_cloud_pub_timer_;
-  void freePointCloudtimerCallback(const ros::TimerEvent& event);
+  ros2_compat::Timer free_cloud_pub_timer_;
+  void freePointCloudtimerCallback(const ros2_compat::TimerEvent& event);
 
   const int backtracking_queue_max_size = 500;
   std::queue<StateVec> robot_backtracking_queue_;
@@ -676,7 +675,6 @@ class Rrg {
 
   grid_map::GridMap ele_map_;
 
-  AdaptiveObb* adaptive_obb_;
 
   // std::shared_ptr<OpeningDetector> opening_detector_;
   OpeningTraversalMode opening_traversal_mode_;

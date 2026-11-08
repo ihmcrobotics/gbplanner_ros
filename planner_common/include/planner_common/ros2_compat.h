@@ -21,6 +21,8 @@
 #include <tf2/LinearMath/Vector3.h>
 #include <tf2/utils.h>
 
+#include "planner_common/ros1_node_handle.h"
+
 namespace ros2_compat {
 
 /// The planner's node. Set once in main, before anything plans or reads parameters.
@@ -46,6 +48,11 @@ bool getParam(const std::string& name, std::vector<int>& value);
 bool getParam(const std::string& name, std::vector<std::string>& value);
 bool getParam(const std::string& name, std::vector<bool>& value);
 bool hasParam(const std::string& name);
+
+/// tf's lookupTransform at the latest time, on a tf2 buffer the node shares. Throws
+/// tf2::TransformException like tf did.
+void lookupTransform(const std::string& target_frame, const std::string& source_frame,
+                     tf2::Transform& transform, double timeout_seconds = 0.0);
 
 inline double toSec(const rclcpp::Time& time) { return time.seconds(); }
 inline double toSec(const rclcpp::Duration& duration) { return duration.seconds(); }

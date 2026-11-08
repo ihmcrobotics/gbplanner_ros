@@ -2,8 +2,8 @@
 
 #include "planner_common/ros2_compat.h"
 
-Visualization::Visualization(const ros::NodeHandle& nh,
-                             const ros::NodeHandle& nh_private) {
+Visualization::Visualization(const ros2_compat::NodeHandle& nh,
+                             const ros2_compat::NodeHandle& nh_private) {
   nh_ = nh;
   nh_private_ = nh_private;
   planning_workspace_pub_ = nh_.advertise<visualization_msgs::msg::MarkerArray>(
@@ -78,7 +78,6 @@ void Visualization::visualizeWorkspace(StateVec& state,
   // Global ws
   visualization_msgs::msg::Marker global_ws_marker;
   global_ws_marker.header.stamp = ros2_compat::now();
-  global_ws_marker.header.seq = 0;
   global_ws_marker.header.frame_id = world_frame_id;
   global_ws_marker.id = 0;
   global_ws_marker.ns = "global";
@@ -129,7 +128,6 @@ void Visualization::visualizeWorkspace(StateVec& state,
   // Local ws
   visualization_msgs::msg::Marker local_ws_marker;
   local_ws_marker.header.stamp = ros2_compat::now();
-  local_ws_marker.header.seq = 0;
   local_ws_marker.header.frame_id = world_frame_id;
   local_ws_marker.ns = "local";
   local_ws_marker.id = 0;
@@ -190,7 +188,6 @@ void Visualization::visualizeNoGainZones(
     BoundedSpaceParams no_gain_zone = no_gain_zones[i];
     visualization_msgs::msg::Marker no_gain_zone_marker;
     no_gain_zone_marker.header.stamp = ros2_compat::now();
-    no_gain_zone_marker.header.seq = 0;
     no_gain_zone_marker.header.frame_id = world_frame_id;
     no_gain_zone_marker.id = 0;
     no_gain_zone_marker.ns = "no_gain_zone_" + std::to_string(i);
@@ -254,7 +251,6 @@ void Visualization::visualizeGraphVertices(const std::shared_ptr<GraphManager> g
     Vertex* v = graph_manager->getVertex(id);
     visualization_msgs::msg::Marker marker;
     marker.header.stamp = ros2_compat::now();
-    marker.header.seq = 0;
     marker.header.frame_id = world_frame_id;
     marker.ns = "heading";
     marker.action = visualization_msgs::msg::Marker::ADD;
@@ -297,7 +293,6 @@ void Visualization::visualizeGraph(
   // Plot all edges
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "edges";
@@ -334,7 +329,6 @@ void Visualization::visualizeGraph(
   // Plot all vertices
   visualization_msgs::msg::Marker vertex_marker;
   vertex_marker.header.stamp = ros2_compat::now();
-  vertex_marker.header.seq = 0;
   vertex_marker.header.frame_id = world_frame_id;
   vertex_marker.id = 0;
   vertex_marker.ns = "vertices";
@@ -367,7 +361,6 @@ void Visualization::visualizeGraph(
   // Plot all hanging vertices
   visualization_msgs::msg::Marker hanging_vertex_marker;
   hanging_vertex_marker.header.stamp = ros2_compat::now();
-  hanging_vertex_marker.header.seq = 0;
   hanging_vertex_marker.header.frame_id = world_frame_id;
   hanging_vertex_marker.id = 0;
   hanging_vertex_marker.ns = "hanging_vertices";
@@ -408,7 +401,6 @@ void Visualization::visualizeGraph(
   ++it) {
     visualization_msgs::msg::Marker marker;
     marker.header.stamp = ros2_compat::now();
-    marker.header.seq = 0;
     marker.header.frame_id = world_frame_id;
     marker.ns = "heading";
     marker.action = visualization_msgs::msg::Marker::ADD;
@@ -452,7 +444,6 @@ void Visualization::visualizeProjectedGraph(
   // Plot all edges
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "edges";
@@ -489,7 +480,6 @@ void Visualization::visualizeProjectedGraph(
   // Plot all vertices
   visualization_msgs::msg::Marker vertex_marker;
   vertex_marker.header.stamp = ros2_compat::now();
-  vertex_marker.header.seq = 0;
   vertex_marker.header.frame_id = world_frame_id;
   vertex_marker.id = 0;
   vertex_marker.ns = "vertices";
@@ -535,7 +525,6 @@ void Visualization::visualizeGlobalGraph(
   // Plot all edges using line (fast)
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "edges";
@@ -572,7 +561,6 @@ void Visualization::visualizeGlobalGraph(
   // Plot all vertices
   visualization_msgs::msg::Marker vertex_marker;
   vertex_marker.header.stamp = ros2_compat::now();
-  vertex_marker.header.seq = 0;
   vertex_marker.header.frame_id = world_frame_id;
   vertex_marker.id = 0;
   vertex_marker.ns = "vertices";
@@ -604,7 +592,6 @@ void Visualization::visualizeGlobalGraph(
 
   visualization_msgs::msg::Marker frontier_marker;
   frontier_marker.header.stamp = ros2_compat::now();
-  frontier_marker.header.seq = 0;
   frontier_marker.header.frame_id = world_frame_id;
   frontier_marker.id = 0;
   frontier_marker.ns = "frontier";
@@ -632,7 +619,6 @@ void Visualization::visualizeGlobalGraph(
       // Gain
       visualization_msgs::msg::Marker marker;
       marker.header.stamp = ros2_compat::now();
-      marker.header.seq = 0;
       marker.header.frame_id = world_frame_id;
       marker.ns = "gain";
       marker.action = visualization_msgs::msg::Marker::ADD;
@@ -659,7 +645,6 @@ void Visualization::visualizeGlobalGraph(
   // Semantics
   visualization_msgs::msg::Marker semantic_marker_stairs;
   semantic_marker_stairs.header.stamp = ros2_compat::now();
-  semantic_marker_stairs.header.seq = 0;
   semantic_marker_stairs.header.frame_id = world_frame_id;
   semantic_marker_stairs.id = 0;
   semantic_marker_stairs.ns = "stairs";
@@ -690,7 +675,6 @@ void Visualization::visualizeGlobalGraph(
 
   visualization_msgs::msg::Marker semantic_marker_door;
   semantic_marker_door.header.stamp = ros2_compat::now();
-  semantic_marker_door.header.seq = 0;
   semantic_marker_door.header.frame_id = world_frame_id;
   semantic_marker_door.id = 0;
   semantic_marker_door.ns = "door";
@@ -730,7 +714,6 @@ void Visualization::visualizeFailedEdges(std::shared_ptr<SampleStatistic> ss) {
   // Plot all edges
   visualization_msgs::msg::Marker edge_fail_marker;
   edge_fail_marker.header.stamp = ros2_compat::now();
-  edge_fail_marker.header.seq = 0;
   edge_fail_marker.header.frame_id = world_frame_id;
   edge_fail_marker.id = 0;
   edge_fail_marker.ns = "failed_edges";
@@ -772,7 +755,6 @@ void Visualization::visualizeRobotState(StateVec& state,
   // True size
   visualization_msgs::msg::Marker robot_size_marker;
   robot_size_marker.header.stamp = ros2_compat::now();
-  robot_size_marker.header.seq = 0;
   robot_size_marker.header.frame_id = world_frame_id;
   robot_size_marker.id = 0;
   robot_size_marker.ns = "size";
@@ -801,7 +783,6 @@ void Visualization::visualizeRobotState(StateVec& state,
   // Extension size-aligned with heading
   visualization_msgs::msg::Marker robot_esize_marker;
   robot_esize_marker.header.stamp = ros2_compat::now();
-  robot_esize_marker.header.seq = 0;
   robot_esize_marker.header.frame_id = world_frame_id;
   robot_esize_marker.id = 0;
   robot_esize_marker.ns = "extension_aligned";
@@ -830,7 +811,6 @@ void Visualization::visualizeRobotState(StateVec& state,
   // Extension size in XYZ World.
   visualization_msgs::msg::Marker robot_esize_xyz_marker;
   robot_esize_xyz_marker.header.stamp = ros2_compat::now();
-  robot_esize_xyz_marker.header.seq = 0;
   robot_esize_xyz_marker.header.frame_id = world_frame_id;
   robot_esize_xyz_marker.id = 0;
   robot_esize_xyz_marker.ns = "extension";
@@ -861,7 +841,6 @@ void Visualization::visualizeRobotState(StateVec& state,
   // Center and heading.
   visualization_msgs::msg::Marker robot_ori_marker;
   robot_ori_marker.header.stamp = ros2_compat::now();
-  robot_ori_marker.header.seq = 0;
   robot_ori_marker.header.frame_id = world_frame_id;
   robot_ori_marker.id = 0;
   robot_ori_marker.ns = "heading";
@@ -901,7 +880,6 @@ void Visualization::visualizeSensorFOV(StateVec& state,
       // Visualize its frustum using lines precomputed.
       visualization_msgs::msg::Marker line_marker;
       line_marker.header.stamp = ros2_compat::now();
-      line_marker.header.seq = 0;
       line_marker.header.frame_id = world_frame_id;
       line_marker.ns = sensor_name;
       line_marker.id = 0;
@@ -960,7 +938,6 @@ void Visualization::visualizeSensorFOV(StateVec& state,
       // Visualize as a cylinder (not correct but for debug purpose).
       visualization_msgs::msg::Marker cyl_marker;
       cyl_marker.header.stamp = ros2_compat::now();
-      cyl_marker.header.seq = 0;
       cyl_marker.header.frame_id = world_frame_id;
       cyl_marker.ns = sensor_name;
       cyl_marker.action = visualization_msgs::msg::Marker::ADD;
@@ -1013,7 +990,6 @@ void Visualization::visualizeNegativePaths(
   // Plot all egdes.
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "negative_edges";
@@ -1062,7 +1038,6 @@ void Visualization::visualizeNegativePaths(
   // Plot all egdes.
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "negative_edges";
@@ -1108,7 +1083,6 @@ void Visualization::visualizeShortestPaths(
   // Plot all egdes.
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "shortest_edges";
@@ -1140,7 +1114,6 @@ void Visualization::visualizeShortestPaths(
   // Plot all vertices.
   visualization_msgs::msg::Marker vertex_marker;
   vertex_marker.header.stamp = ros2_compat::now();
-  vertex_marker.header.seq = 0;
   vertex_marker.header.frame_id = world_frame_id;
   vertex_marker.id = 0;
   vertex_marker.ns = "vertices";
@@ -1168,7 +1141,6 @@ void Visualization::visualizeShortestPaths(
   // Plot all leave.
   visualization_msgs::msg::Marker leaf_vertex_marker;
   leaf_vertex_marker.header.stamp = ros2_compat::now();
-  leaf_vertex_marker.header.seq = 0;
   leaf_vertex_marker.header.frame_id = world_frame_id;
   leaf_vertex_marker.id = 0;
   leaf_vertex_marker.ns = "leaf_vertices";
@@ -1201,7 +1173,6 @@ void Visualization::visualizeShortestPaths(
   for (int id = 0; id < num_vertices; ++id) {
     visualization_msgs::msg::Marker marker;
     marker.header.stamp = ros2_compat::now();
-    marker.header.seq = 0;
     marker.header.frame_id = world_frame_id;
     marker.ns = "heading";
     marker.action = visualization_msgs::msg::Marker::ADD;
@@ -1233,7 +1204,6 @@ void Visualization::visualizeShortestPaths(
   for (int id = 0; id < num_vertices; ++id) {
     visualization_msgs::msg::Marker marker;
     marker.header.stamp = ros2_compat::now();
-    marker.header.seq = 0;
     marker.header.frame_id = world_frame_id;
     marker.ns = "gain";
     marker.action = visualization_msgs::msg::Marker::ADD;
@@ -1271,7 +1241,6 @@ void Visualization::visualizeShortestPaths(
             });
   visualization_msgs::msg::Marker best_leaf_marker;
   best_leaf_marker.header.stamp = ros2_compat::now();
-  best_leaf_marker.header.seq = 0;
   best_leaf_marker.header.frame_id = world_frame_id;
   best_leaf_marker.id = 0;
   best_leaf_marker.ns = "best_leaf_vertices";
@@ -1300,7 +1269,6 @@ void Visualization::visualizeShortestPaths(
   // Mark all potential frontiers.
   visualization_msgs::msg::Marker frontier_marker;
   frontier_marker.header.stamp = ros2_compat::now();
-  frontier_marker.header.seq = 0;
   frontier_marker.header.frame_id = world_frame_id;
   frontier_marker.id = 0;
   frontier_marker.ns = "frontiers";
@@ -1345,7 +1313,6 @@ void Visualization::visualizeClusteredPaths(
     // Plot all egdes.
     visualization_msgs::msg::Marker edge_marker;
     edge_marker.header.stamp = ros2_compat::now();
-    edge_marker.header.seq = 0;
     edge_marker.header.frame_id = world_frame_id;
     edge_marker.id = 0;
     edge_marker.ns = "cluster" + std::to_string(cind);
@@ -1434,7 +1401,6 @@ void Visualization::visualizeHomingPath(
   // Plot the best one first.
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "best_path";
@@ -1480,7 +1446,6 @@ void Visualization::visualizeGlobalPaths(
   // Plot the current to frontier path first.
   visualization_msgs::msg::Marker frontier_marker;
   frontier_marker.header.stamp = ros2_compat::now();
-  frontier_marker.header.seq = 0;
   frontier_marker.header.frame_id = world_frame_id;
   frontier_marker.id = 0;
   frontier_marker.ns = "current2frontier";
@@ -1513,7 +1478,6 @@ void Visualization::visualizeGlobalPaths(
   // Plot the current to frontier path first.
   visualization_msgs::msg::Marker home_marker;
   home_marker.header.stamp = ros2_compat::now();
-  home_marker.header.seq = 0;
   home_marker.header.frame_id = world_frame_id;
   home_marker.id = 0;
   home_marker.ns = "frontier2home";
@@ -1554,7 +1518,6 @@ void Visualization::visualizeOpeningTraversalPath(const std::vector<geometry_msg
 
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "best_path";
@@ -1587,7 +1550,6 @@ void Visualization::visualizeOpeningTraversalPath(const std::vector<geometry_msg
   // Plot all vertices.
   visualization_msgs::msg::Marker vertex_marker;
   vertex_marker.header.stamp = ros2_compat::now();
-  vertex_marker.header.seq = 0;
   vertex_marker.header.frame_id = world_frame_id;
   vertex_marker.id = 0;
   vertex_marker.ns = "vertices";
@@ -1626,7 +1588,6 @@ void Visualization::visualizePath(
   // Plot the best one first.
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "best_path";
@@ -1661,7 +1622,6 @@ void Visualization::visualizePath(
   // Plot all vertices.
   visualization_msgs::msg::Marker vertex_marker;
   vertex_marker.header.stamp = ros2_compat::now();
-  vertex_marker.header.seq = 0;
   vertex_marker.header.frame_id = world_frame_id;
   vertex_marker.id = 0;
   vertex_marker.ns = "vertices";
@@ -1701,7 +1661,6 @@ void Visualization::visualizeBestPaths(
   // Plot the best one first.
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "best_path";
@@ -1737,7 +1696,6 @@ void Visualization::visualizeBestPaths(
   // Plot all vertices.
   visualization_msgs::msg::Marker vertex_marker;
   vertex_marker.header.stamp = ros2_compat::now();
-  vertex_marker.header.seq = 0;
   vertex_marker.header.frame_id = world_frame_id;
   vertex_marker.id = 0;
   vertex_marker.ns = "vertices";
@@ -1775,7 +1733,6 @@ void Visualization::visualizeRefPath(
 
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "ref_path";
@@ -1806,7 +1763,6 @@ void Visualization::visualizeRefPath(
   // Plot all vertices.
   visualization_msgs::msg::Marker vertex_marker;
   vertex_marker.header.stamp = ros2_compat::now();
-  vertex_marker.header.seq = 0;
   vertex_marker.header.frame_id = world_frame_id;
   vertex_marker.id = 0;
   vertex_marker.ns = "vertices";
@@ -1844,7 +1800,6 @@ void Visualization::visualizeRefPath(
 
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "ref_path";
@@ -1875,7 +1830,6 @@ void Visualization::visualizeRefPath(
   // Plot all vertices.
   visualization_msgs::msg::Marker vertex_marker;
   vertex_marker.header.stamp = ros2_compat::now();
-  vertex_marker.header.seq = 0;
   vertex_marker.header.frame_id = world_frame_id;
   vertex_marker.id = 0;
   vertex_marker.ns = "vertices";
@@ -1914,7 +1868,6 @@ void Visualization::visualizeVolumetricGain(
   // Plot bounding area.
   visualization_msgs::msg::Marker bound_marker;
   bound_marker.header.stamp = ros2_compat::now();
-  bound_marker.header.seq = 0;
   bound_marker.header.frame_id = world_frame_id;
   bound_marker.id = 0;
   bound_marker.ns = "bound";
@@ -1943,7 +1896,6 @@ void Visualization::visualizeVolumetricGain(
   // Plot unknow voxels.
   visualization_msgs::msg::Marker unknown_voxel_marker;
   unknown_voxel_marker.header.stamp = ros2_compat::now();
-  unknown_voxel_marker.header.seq = 0;
   unknown_voxel_marker.header.frame_id = world_frame_id;
   unknown_voxel_marker.id = 0;
   unknown_voxel_marker.ns = "unknown_voxels";
@@ -1961,7 +1913,6 @@ void Visualization::visualizeVolumetricGain(
 
   visualization_msgs::msg::Marker free_voxel_marker;
   free_voxel_marker.header.stamp = ros2_compat::now();
-  free_voxel_marker.header.seq = 0;
   free_voxel_marker.header.frame_id = world_frame_id;
   free_voxel_marker.id = 0;
   free_voxel_marker.ns = "free_voxels";
@@ -1979,7 +1930,6 @@ void Visualization::visualizeVolumetricGain(
 
   visualization_msgs::msg::Marker occupied_voxel_marker;
   occupied_voxel_marker.header.stamp = ros2_compat::now();
-  occupied_voxel_marker.header.seq = 0;
   occupied_voxel_marker.header.frame_id = world_frame_id;
   occupied_voxel_marker.id = 0;
   occupied_voxel_marker.ns = "occupied_voxels";
@@ -2025,7 +1975,6 @@ void Visualization::visualizeSampler(RandomSampler& random_sampler) {
   // Plot all vertices.
   visualization_msgs::msg::Marker samples_marker;
   samples_marker.header.stamp = ros2_compat::now();
-  samples_marker.header.seq = 0;
   samples_marker.header.frame_id = world_frame_id;
   samples_marker.id = 0;
   samples_marker.ns = "valid_samples";
@@ -2052,7 +2001,6 @@ void Visualization::visualizeSampler(RandomSampler& random_sampler) {
 
   visualization_msgs::msg::Marker invalid_samples_marker;
   invalid_samples_marker.header.stamp = ros2_compat::now();
-  invalid_samples_marker.header.seq = 0;
   invalid_samples_marker.header.frame_id = world_frame_id;
   invalid_samples_marker.id = 0;
   invalid_samples_marker.ns = "invalid_samples";
@@ -2089,7 +2037,6 @@ void Visualization::visualizeRays(
   // Plot all rays.
   visualization_msgs::msg::Marker ray_marker;
   ray_marker.header.stamp = ros2_compat::now();
-  ray_marker.header.seq = 0;
   ray_marker.header.frame_id = world_frame_id;
   ray_marker.id = 0;
   ray_marker.ns = "rays";
@@ -2129,7 +2076,6 @@ void Visualization::visualizeRobotStateHistory(
   // Plot all vertices.
   visualization_msgs::msg::Marker state_marker;
   state_marker.header.stamp = ros2_compat::now();
-  state_marker.header.seq = 0;
   state_marker.header.frame_id = world_frame_id;
   state_marker.id = 0;
   state_marker.ns = "state";
@@ -2157,7 +2103,6 @@ void Visualization::visualizeRobotStateHistory(
   // Plot bubble around it.
   visualization_msgs::msg::Marker state_range_marker;
   state_range_marker.header.stamp = ros2_compat::now();
-  state_range_marker.header.seq = 0;
   state_range_marker.header.frame_id = world_frame_id;
   state_range_marker.id = 0;
   state_range_marker.ns = "state_range";
@@ -2197,7 +2142,6 @@ void Visualization::visualizeGeofence(
   for (auto& geof : geofence_list) {
     visualization_msgs::msg::Marker obs_marker;
     obs_marker.header.stamp = ros2_compat::now();
-    obs_marker.header.seq = 0;
     obs_marker.header.frame_id = world_frame_id;
     obs_marker.ns = "geofence";
     obs_marker.id = marker_id++;
@@ -2234,7 +2178,6 @@ void Visualization::visualizeGeofence(
     // ID Status
     visualization_msgs::msg::Marker marker;
     marker.header.stamp = ros2_compat::now();
-    marker.header.seq = 0;
     marker.header.frame_id = world_frame_id;
     marker.ns = "ID";
     marker.action = visualization_msgs::msg::Marker::ADD;
@@ -2289,7 +2232,6 @@ void Visualization::visualizeHyperplanes(
 
   visualization_msgs::msg::Marker proj_points;
   proj_points.header.stamp = ros2_compat::now();
-  proj_points.header.seq = 0;
   proj_points.header.frame_id = world_frame_id;
   proj_points.id = markers_id;
   proj_points.ns = "planes";
@@ -2324,7 +2266,6 @@ void Visualization::visualizeHyperplanes(
     quat_W2S.setFromTwoVectors(x_axis, hyperplane_list[i].normalized());
     visualization_msgs::msg::Marker marker;
     marker.header.stamp = ros2_compat::now();
-    marker.header.seq = 0;
     marker.header.frame_id = world_frame_id;
     marker.ns = "normal";
     marker.action = visualization_msgs::msg::Marker::ADD;
@@ -2350,7 +2291,6 @@ void Visualization::visualizeHyperplanes(
 
     visualization_msgs::msg::Marker marker_plane;
     marker_plane.header.stamp = ros2_compat::now();
-    marker_plane.header.seq = 0;
     marker_plane.header.frame_id = world_frame_id;
     marker_plane.ns = "plane";
     marker_plane.action = visualization_msgs::msg::Marker::ADD;
@@ -2378,7 +2318,6 @@ void Visualization::visualizeHyperplanes(
 
   visualization_msgs::msg::Marker tangent_points;
   tangent_points.header.stamp = ros2_compat::now();
-  tangent_points.header.seq = 0;
   tangent_points.header.frame_id = world_frame_id;
   tangent_points.id = 0;
   tangent_points.ns = "points";
@@ -2417,7 +2356,6 @@ void Visualization::visualizeModPath(
 
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "mod_path";
@@ -2455,7 +2393,6 @@ void Visualization::visualizeBlindModPath(
   visualization_msgs::msg::MarkerArray marker_array;
   visualization_msgs::msg::Marker edge_marker;
   edge_marker.header.stamp = ros2_compat::now();
-  edge_marker.header.seq = 0;
   edge_marker.header.frame_id = world_frame_id;
   edge_marker.id = 0;
   edge_marker.ns = "blind_mod_path";
@@ -2486,7 +2423,6 @@ void Visualization::visualizeBlindModPath(
   // Plot all vertices.
   visualization_msgs::msg::Marker vertex_marker;
   vertex_marker.header.stamp = ros2_compat::now();
-  vertex_marker.header.seq = 0;
   vertex_marker.header.frame_id = world_frame_id;
   vertex_marker.id = 0;
   vertex_marker.ns = "vertices";

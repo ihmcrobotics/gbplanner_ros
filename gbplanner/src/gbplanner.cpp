@@ -4,22 +4,22 @@
 
 // namespace explorer {
 
-Gbplanner::Gbplanner(const ros::NodeHandle& nh,
-                     const ros::NodeHandle& nh_private)
+Gbplanner::Gbplanner(const ros2_compat::NodeHandle& nh,
+                     const ros2_compat::NodeHandle& nh_private)
     : nh_(nh), nh_private_(nh_private) {
   planner_status_ = Gbplanner::PlannerStatus::NOT_READY;
 
   rrg_ = new Rrg(nh, nh_private);
   if (!(rrg_->loadParams(false))) {
     ROS_ERROR_COND(global_verbosity >= Verbosity::ERROR, "Could not load all required parameters. Shutdown ROS node.");
-    ros::shutdown();
+    rclcpp::shutdown();
   }
 
   initializeAttributes();
 }
 
-Gbplanner::Gbplanner(const ros::NodeHandle& nh,
-                     const ros::NodeHandle& nh_private,
+Gbplanner::Gbplanner(const ros2_compat::NodeHandle& nh,
+                     const ros2_compat::NodeHandle& nh_private,
                      MapManager* map_manager)
     : nh_(nh), nh_private_(nh_private) {
   
@@ -28,59 +28,59 @@ Gbplanner::Gbplanner(const ros::NodeHandle& nh,
 
   if (!(rrg_->loadParams(true))) {
     ROS_ERROR_COND(global_verbosity >= Verbosity::ERROR, "Could not load all required parameters. Shutdown ROS node.");
-    ros::shutdown();
+    rclcpp::shutdown();
   }
 
   initializeAttributes();
 }
 
 void Gbplanner::initializeAttributes() {
-  planner_service_ = nh_.advertiseService(
+  planner_service_ = nh_.advertiseService<planner_msgs::srv::PlannerSrv>(
       "gbplanner", &Gbplanner::plannerServiceCallback, this);
-  global_planner_service_ = nh_.advertiseService(
+  global_planner_service_ = nh_.advertiseService<planner_msgs::srv::PlannerGlobal>(
       "gbplanner/global", &Gbplanner::globalPlannerServiceCallback, this);
-  planner_homing_service_ = nh_.advertiseService(
+  planner_homing_service_ = nh_.advertiseService<planner_msgs::srv::PlannerHoming>(
       "gbplanner/homing", &Gbplanner::homingServiceCallback, this);
   planner_set_homing_pos_service_ =
-      nh_.advertiseService("gbplanner/set_homing_pos",
+      nh_.advertiseService<planner_msgs::srv::PlannerSetHomingPos>("gbplanner/set_homing_pos",
                            &Gbplanner::setHomingPosServiceCallback, this);
-  planner_search_service_ = nh_.advertiseService(
+  planner_search_service_ = nh_.advertiseService<planner_msgs::srv::PlannerSearch>(
       "gbplanner/search", &Gbplanner::plannerSearchServiceCallback, this);
-  planner_passing_gate_service_ = nh_.advertiseService(
+  planner_passing_gate_service_ = nh_.advertiseService<planner_msgs::srv::PlannerRequestPath>(
       "gbplanner/passing_gate", &Gbplanner::passingGateCallback, this);
-  planner_set_global_bound_service_ = nh_.advertiseService(
+  planner_set_global_bound_service_ = nh_.advertiseService<planner_msgs::srv::PlannerSetGlobalBound>(
       "gbplanner/set_global_bound", &Gbplanner::setGlobalBound, this);
   planner_set_dynamic_global_bound_service_ =
-      nh_.advertiseService("gbplanner/set_dynamic_global_bound",
+      nh_.advertiseService<planner_msgs::srv::PlannerDynamicGlobalBound>("gbplanner/set_dynamic_global_bound",
                            &Gbplanner::setDynamicGlobalBound, this);
   planner_clear_untraversable_zones_service_ =
-      nh_.advertiseService("gbplanner/clear_untraversable_zones",
+      nh_.advertiseService<std_srvs::srv::Trigger>("gbplanner/clear_untraversable_zones",
                            &Gbplanner::clearUntraversableZones, this);
-  planner_load_graph_service_ = nh_.advertiseService(
+  planner_load_graph_service_ = nh_.advertiseService<planner_msgs::srv::PlannerStringTrigger>(
       "gbplanner/load_graph", &Gbplanner::plannerLoadGraphCallback, this);
-  planner_save_graph_service_ = nh_.advertiseService(
+  planner_save_graph_service_ = nh_.advertiseService<planner_msgs::srv::PlannerStringTrigger>(
       "gbplanner/save_graph", &Gbplanner::plannerSaveGraphCallback, this);
   planner_goto_wp_service_ =
-      nh_.advertiseService("gbplanner/go_to_waypoint",
+      nh_.advertiseService<planner_msgs::srv::PlannerGoToWaypoint>("gbplanner/go_to_waypoint",
                            &Gbplanner::plannerGotoWaypointCallback, this);
   planner_enable_untraversable_polygon_subscriber_service_ =
-      nh_.advertiseService(
+      nh_.advertiseService<std_srvs::srv::SetBool>(
           "gbplanner/enable_untraversable_polygon_subscriber",
           &Gbplanner::plannerEnableUntraversablePolygonSubscriberCallback,
           this);
-  planner_set_planning_trigger_mode_service_ = nh_.advertiseService(
+  planner_set_planning_trigger_mode_service_ = nh_.advertiseService<planner_msgs::srv::PlannerSetPlanningMode>(
       "gbplanner/set_planning_trigger_mode",
       &Gbplanner::plannerSetPlanningTriggerModeCallback, this);
       
-  inspection_path_service_ = nh_.advertiseService(
+  inspection_path_service_ = nh_.advertiseService<planner_msgs::srv::PlannerSrv>(
       "gbplanner/get_inspection_path",
       &Gbplanner::inspectionServiceCallback, this);
 
-  force_compartment_transition_service_ = nh_.advertiseService(
+  force_compartment_transition_service_ = nh_.advertiseService<std_srvs::srv::Trigger>(
       "gbplanner/force_compartment_transition",
       &Gbplanner::forceCompartmentChangeServiceCallback, this);
   
-  switch_operation_mode_service_ = nh_.advertiseService(
+  switch_operation_mode_service_ = nh_.advertiseService<std_srvs::srv::SetBool>(
       "gbplanner/switch_operation_mode",
       &Gbplanner::switchOperationModeServiceCallback, this);
 
@@ -160,7 +160,7 @@ bool Gbplanner::plannerEnableUntraversablePolygonSubscriberCallback(
                       &Gbplanner::untraversablePolygonCallback, this);
   } else {
     ROS_INFO_COND(global_verbosity >= Verbosity::INFO, "Gbplanner stops checking traversability");
-    untraversable_polygon_subscriber_.shutdown();
+    untraversable_polygon_subscriber_.reset();
   }
   response.success = static_cast<unsigned char>(true);
   return true;
@@ -222,7 +222,7 @@ bool Gbplanner::passingGateCallback(
     planner_msgs::srv::PlannerRequestPath::Request& req,
     planner_msgs::srv::PlannerRequestPath::Response& res) {
   res.path = rrg_->searchPathToPassGate();
-  res.bound.mode = res.bound.kExtendedBound;
+  res.bound.mode = res.bound.EXTENDED_BOUND;
   return true;
 }
 
@@ -1193,9 +1193,9 @@ bool Gbplanner::plannerSetPlanningTriggerModeCallback(
     planner_msgs::srv::PlannerSetPlanningMode::Request& request,
     planner_msgs::srv::PlannerSetPlanningMode::Response& response) {
   PlannerTriggerModeType in_trig_mode;
-  if (request.planning_mode == request.kAuto)
+  if (request.planning_mode == request.AUTO)
     in_trig_mode = PlannerTriggerModeType::kAuto;
-  else if (request.planning_mode == request.kManual)
+  else if (request.planning_mode == request.MANUAL)
     in_trig_mode = PlannerTriggerModeType::kManual;
   rrg_->setPlannerTriggerMode(in_trig_mode);
   response.success = true;

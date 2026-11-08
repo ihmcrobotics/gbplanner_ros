@@ -52,8 +52,8 @@ class Gbplanner {
   };
    
 
-  Gbplanner(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private);
-  Gbplanner(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private,
+  Gbplanner(const ros2_compat::NodeHandle& nh, const ros2_compat::NodeHandle& nh_private);
+  Gbplanner(const ros2_compat::NodeHandle& nh, const ros2_compat::NodeHandle& nh_private,
             MapManager* map_manager);
 
   void initializeAttributes();
@@ -117,39 +117,38 @@ class Gbplanner {
   planner_msgs::srv::PlannerSrv::Response out_srv_res_;
 
  private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle nh_private_;
-  ros::ServiceServer planner_service_;
-  ros::ServiceServer global_planner_service_;
-  ros::ServiceServer planner_homing_service_;
-  ros::ServiceServer planner_set_homing_pos_service_;
-  ros::ServiceServer planner_search_service_;
-  ros::ServiceServer planner_geofence_service_;
-  ros::ServiceServer planner_passing_gate_service_;
-  ros::ServiceServer planner_set_global_bound_service_;
-  ros::ServiceServer planner_set_dynamic_global_bound_service_;
-  ros::ServiceServer planner_clear_untraversable_zones_service_;
-  ros::ServiceServer planner_load_graph_service_;
-  ros::ServiceServer planner_save_graph_service_;
-  ros::ServiceServer planner_goto_wp_service_;
-  ros::ServiceServer planner_enable_untraversable_polygon_subscriber_service_;
-  ros::ServiceServer planner_set_planning_trigger_mode_service_;
-  ros::ServiceServer planner_stop_service_;
-  ros::ServiceServer inspection_path_service_;
-  ros::ServiceServer force_compartment_transition_service_;
-  ros::ServiceServer switch_operation_mode_service_;
+  ros2_compat::NodeHandle nh_;
+  ros2_compat::NodeHandle nh_private_;
+  ros2_compat::ServiceServer planner_service_;
+  ros2_compat::ServiceServer global_planner_service_;
+  ros2_compat::ServiceServer planner_homing_service_;
+  ros2_compat::ServiceServer planner_set_homing_pos_service_;
+  ros2_compat::ServiceServer planner_search_service_;
+  ros2_compat::ServiceServer planner_geofence_service_;
+  ros2_compat::ServiceServer planner_passing_gate_service_;
+  ros2_compat::ServiceServer planner_set_global_bound_service_;
+  ros2_compat::ServiceServer planner_set_dynamic_global_bound_service_;
+  ros2_compat::ServiceServer planner_clear_untraversable_zones_service_;
+  ros2_compat::ServiceServer planner_load_graph_service_;
+  ros2_compat::ServiceServer planner_save_graph_service_;
+  ros2_compat::ServiceServer planner_goto_wp_service_;
+  ros2_compat::ServiceServer planner_enable_untraversable_polygon_subscriber_service_;
+  ros2_compat::ServiceServer planner_set_planning_trigger_mode_service_;
+  ros2_compat::ServiceServer planner_stop_service_;
+  ros2_compat::ServiceServer inspection_path_service_;
+  ros2_compat::ServiceServer force_compartment_transition_service_;
+  ros2_compat::ServiceServer switch_operation_mode_service_;
 
-  ros::Publisher global_planner_local_goal_pub_;
+  ros2_compat::Publisher global_planner_local_goal_pub_;
 
-  ros::Subscriber pose_subscriber_;
-  ros::Subscriber pose_stamped_subscriber_;
-  ros::Subscriber odometry_subscriber_;
-  ros::Subscriber untraversable_polygon_subscriber_;
-  ros::Subscriber robot_status_subcriber_;
-  ros::Subscriber local_nav_goal_subscriber_;
-  ros::Subscriber stop_srv_subscriber_;  
+  ros2_compat::Subscriber pose_subscriber_;
+  ros2_compat::Subscriber pose_stamped_subscriber_;
+  ros2_compat::Subscriber odometry_subscriber_;
+  ros2_compat::Subscriber untraversable_polygon_subscriber_;
+  ros2_compat::Subscriber robot_status_subcriber_;
+  ros2_compat::Subscriber local_nav_goal_subscriber_;
+  ros2_compat::Subscriber stop_srv_subscriber_;  
 
-  ros::ServiceClient map_save_service_;
 
   std::vector<geometry_msgs::msg::Pose> active_homing_path_;
   std::vector<geometry_msgs::msg::Pose> active_global_path_;

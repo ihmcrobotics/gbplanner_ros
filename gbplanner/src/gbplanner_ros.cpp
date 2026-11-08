@@ -1,12 +1,12 @@
 #include "gbplanner/gbplanner_ros.h"
 
-GbplannerRos::GbplannerRos(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private)
+GbplannerRos::GbplannerRos(const ros2_compat::NodeHandle& nh, const ros2_compat::NodeHandle& nh_private)
   :nh_(nh), nh_private_(nh_private)
 {
-  planner_service_ = nh_.advertiseService(
+  planner_service_ = nh_.advertiseService<planner_msgs::srv::PlannerSrv>(
       "gbplanner_ros", &GbplannerRos::plannerServiceCallback, this);
   
-  planner_homing_service_ = nh_.advertiseService(
+  planner_homing_service_ = nh_.advertiseService<planner_msgs::srv::PlannerHoming>(
       "gbplanner_ros_homing", &GbplannerRos::plannerHomingServiceCallback, this);
   
   gbplanner_.reset(new Gbplanner(nh_, nh_private_));
@@ -74,10 +74,10 @@ void GbplannerRos::registerTree()
   factory_.registerNodeType<CalculateGlobalPath>("CalculateGlobalPath", gbplanner_);
   factory_.registerNodeType<UpdateGlobalGoal>("UpdateGlobalGoal", gbplanner_);
 
-  std::string tree_path = ros::package::getPath("gbplanner") + "/config/bt_xml/main_tree.xml";
+  std::string tree_path = ament_index_cpp::get_package_share_directory("gbplanner") + "/config/bt_xml/main_tree.xml";
   if(!ros2_compat::getParam(ros2_compat::nodeName() + "/behavior_tree_path", tree_path))
   {
-    tree_path = ros::package::getPath("gbplanner") + "/config/bt_xml/main_tree.xml";
+    tree_path = ament_index_cpp::get_package_share_directory("gbplanner") + "/config/bt_xml/main_tree.xml";
   }
   std::string trial_tree_path;
   ros2_compat::getParam("~tree_path", trial_tree_path);

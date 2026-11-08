@@ -9,21 +9,18 @@
 
 // namespace explorer {
 
-Rrg::Rrg(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private)
+Rrg::Rrg(const ros2_compat::NodeHandle& nh, const ros2_compat::NodeHandle& nh_private)
     : nh_(nh), nh_private_(nh_private) {
-  map_manager_ =
-      new MapManager(nh_, nh_private_);
-
-  adaptive_obb_ = new AdaptiveObb(map_manager_);
+  rclcpp::Node::SharedPtr node = nh_.node();
+  rclcpp::Node::SharedPtr private_node = nh_private_.node();
+  map_manager_ = new MapManager(node, private_node);
 
   initializeAttributes();
 }
 
-Rrg::Rrg(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private,
+Rrg::Rrg(const ros2_compat::NodeHandle& nh, const ros2_compat::NodeHandle& nh_private,
          MapManager* map_manager)
     : nh_(nh), nh_private_(nh_private), map_manager_(map_manager) {
-  adaptive_obb_ = new AdaptiveObb(map_manager_);
-
   initializeAttributes();
 }
 
@@ -114,18 +111,17 @@ void Rrg::initializeAttributes() {
   landing_srv_client_ = nh_.serviceClient<std_srvs::srv::Empty>(
       "land_srv");  // The service name should be remapped in the launch file
 
-  reset_timer_srv_ = nh_.advertiseService("gbplanner/reset_timer",
+  reset_timer_srv_ = nh_.advertiseService<std_srvs::srv::Trigger>("gbplanner/reset_timer",
       &Rrg::resetTimerCallback, this);
 
-	pass_opening_srv_ = nh_.advertiseService("get_opening_traversal_path", &Rrg::getOpeningPathCallback, this);
-  approve_passing_srv_ = nh_.advertiseService("approve_opening_traversal", &Rrg::approvePassingCallback, this);
-  reset_map_srv_ = nh_.advertiseService("reset_map", &Rrg::resetMapCallback, this);
-  query_srv_ = nh_.advertiseService("query_srv", &Rrg::queryCallback, this);
-  remove_geofence_srv_ = nh_.advertiseService("remove_geofence", &Rrg::removeGeofenceCallback, this);
+	pass_opening_srv_ = nh_.advertiseService<std_srvs::srv::Trigger>("get_opening_traversal_path", &Rrg::getOpeningPathCallback, this);
+  approve_passing_srv_ = nh_.advertiseService<planner_msgs::srv::PlannerOpeningApproval>("approve_opening_traversal", &Rrg::approvePassingCallback, this);
+  reset_map_srv_ = nh_.advertiseService<std_srvs::srv::Trigger>("reset_map", &Rrg::resetMapCallback, this);
+  query_srv_ = nh_.advertiseService<std_srvs::srv::Trigger>("query_srv", &Rrg::queryCallback, this);
+  remove_geofence_srv_ = nh_.advertiseService<planner_msgs::srv::PlannerSetPlanningMode>("remove_geofence", &Rrg::removeGeofenceCallback, this);
 
   ele_map_sub_ = nh_.subscribe("elevation_map", 1, &Rrg::eleMapCallback, this);
 
-  listener_ = new tf::TransformListener();
 
   next_compartment_ << std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), std::numeric_limits<double>::max();
 }
@@ -1789,8 +1785,8 @@ Rrg::GraphStatus Rrg::batchGraph(){
     // adaptive obb will extend this bounding box
     min_val = adaptive_orig_min_val_;
     max_val = adaptive_orig_max_val_;
-    adaptive_obb_->constructBoundingBox(pos, min_val, max_val, rotations,
-                                        mean_val, std_val);
+    // adaptive_obb is not ported: the box keeps its configured size and orientation
+    rotations.setZero();
 
     // 2. Update bounding box
     local_adaptive_params_.setBound(min_val, max_val);
@@ -1964,8 +1960,8 @@ Rrg::GraphStatus Rrg::buildGraph() {
     // adaptive obb will extend this bounding box
     min_val = adaptive_orig_min_val_;
     max_val = adaptive_orig_max_val_;
-    adaptive_obb_->constructBoundingBox(pos, min_val, max_val, rotations,
-                                        mean_val, std_val);
+    // adaptive_obb is not ported: the box keeps its configured size and orientation
+    rotations.setZero();
 
     // 2. Update bounding box
     local_adaptive_params_.setBound(min_val, max_val);
@@ -3155,7 +3151,7 @@ bool Rrg::resetTimerCallback(std_srvs::srv::Trigger::Request &req, std_srvs::srv
   }
 
 void Rrg::expandGlobalGraphFrontierAdditionTimerCallback(
-    const ros::TimerEvent& event) {
+    const ros2_compat::TimerEvent& event) {
   if (add_frontiers_to_global_graph_) {
     auto t1 = std::chrono::high_resolution_clock::now();
     auto t2 = t1;
@@ -3170,7 +3166,7 @@ void Rrg::expandGlobalGraphFrontierAdditionTimerCallback(
   }
 }
 
-void Rrg::expandGlobalGraphTimerCallback(const ros::TimerEvent& event) {
+void Rrg::expandGlobalGraphTimerCallback(const ros2_compat::TimerEvent& event) {
   // Algorithm:
   // Extract unvisited vertices in the global graph.
   // Randomly choose a vertex then group all nearby vertices within a local
@@ -3757,8 +3753,8 @@ bool Rrg::loadParams(bool shared_params) {
           ns + "/BoundedSpaceParams/LocalAdaptiveExp")) {
     ROS_WARN_COND(global_verbosity >= Verbosity::WARN, "No setting for adaptive exploration mode.");
   }
-  if (!adaptive_obb_->loadParams(ns + "/AdaptiveObbParams")) {
-    ROS_WARN_COND(global_verbosity >= Verbosity::WARN, "No setting for adaptive exploration mode.");
+  if (planning_params_.type == PlanningModeType::kAdaptiveExploration) {
+    ROS_WARN("Adaptive exploration uses its configured box: adaptive_obb is not ported to ROS 2.");
   }
   adaptive_orig_min_val_ = local_adaptive_params_.min_val;
   adaptive_orig_max_val_ = local_adaptive_params_.max_val;
@@ -3928,11 +3924,10 @@ bool Rrg::setGlobalBound(
   } else {
     ROS_WARN_COND(global_verbosity >= Verbosity::WARN, "world frame: %s, %s", world_frame_.c_str(), planning_params_.global_frame_id.c_str());
     // Transform points to the world frame
-    tf::StampedTransform darpa_to_world_transform;
+    tf_compat::Transform darpa_to_world_transform;
     try {
-      listener_->lookupTransform(world_frame_, bound.header.frame_id,
-                                 rclcpp::Time(0), darpa_to_world_transform);
-    } catch (tf::TransformException ex) {
+      ros2_compat::lookupTransform(world_frame_, bound.header.frame_id, darpa_to_world_transform);
+    } catch (const tf2::TransformException& ex) {
       ROS_ERROR_COND(global_verbosity >= Verbosity::ERROR, "%s", ex.what());
     }
     // Center
@@ -5202,7 +5197,8 @@ std::vector<geometry_msgs::msg::Pose> Rrg::getBestPath(std::string tgt_frame,
 
       std_srvs::srv::Empty empty_srv;
       if (!landing_engaged_) {
-        landing_srv_client_.call(empty_srv);
+        std_srvs::srv::Empty::Response empty_response;
+        landing_srv_client_.call(std_srvs::srv::Empty::Request(), empty_response);
         pci_reset_pub_.publish(stop_msg);
       }
       /* TODO: What happens if the disarm service fails */
@@ -7527,7 +7523,7 @@ void Rrg::setState(StateVec& state) {
   }
 }
 
-void Rrg::freePointCloudtimerCallback(const ros::TimerEvent& event) {
+void Rrg::freePointCloudtimerCallback(const ros2_compat::TimerEvent& event) {
   if (!planning_params_.freespace_cloud_enable) return;
   if(!odometry_ready) return;
 
@@ -7570,7 +7566,7 @@ void Rrg::freePointCloudtimerCallback(const ros::TimerEvent& event) {
   // ROS_WARN_COND(global_verbosity >= Verbosity::WARN, "Free cloud time: %f s", elapsed.count());
 }
 
-void Rrg::timerCallback(const ros::TimerEvent& event) {
+void Rrg::timerCallback(const ros2_compat::TimerEvent& event) {
   // Re-initialize until get non-zero value.
   // ROS_WARN("tC: start: GG verts: %d, edges: %d", global_graph_->getNumVertices(), global_graph_->getNumEdges());
   if (rostime_start_.seconds() == 0) rostime_start_ = ros2_compat::now();
@@ -7605,7 +7601,8 @@ void Rrg::timerCallback(const ros::TimerEvent& event) {
         std_msgs::msg::Bool stop_msg;
         stop_msg.data = true;
         std_srvs::srv::Empty empty_srv;
-        landing_srv_client_.call(empty_srv);
+        std_srvs::srv::Empty::Response empty_response;
+        landing_srv_client_.call(std_srvs::srv::Empty::Request(), empty_response);
         pci_reset_pub_.publish(stop_msg);
         /* TODO: What happens if the disarm service fails */
       }
@@ -8824,11 +8821,8 @@ std::vector<geometry_msgs::msg::Pose> Rrg::runGlobalPlanner(int vertex_id,
   // Get the list of current frontiers.
   //
   ROS_INFO_COND(global_verbosity >= Verbosity::PLANNER_STATUS, "Global planner triggered");
-  if (vertex_id) {
-    ros2_compat::sleep(3.0);  // sleep to unblock the thread to get and
-                                 // update all latest pose update.
-    ros::spinOnce();
-  }
+  // ROS 1 slept 3 s and spun once here to take in the latest pose. Callbacks run one at a time on
+  // ROS 2 too, so no pose can arrive during this call; global planning uses the pose from before it.
   
   
   status = planner_msgs::srv::PlannerSrv::Response::REPOSITIONING;
@@ -9242,15 +9236,11 @@ void Rrg::addGeofenceAreas(const geometry_msgs::msg::PolygonStamped& polygon_msg
     } else {
       geometry_msgs::msg::Polygon polygon;
       // Look up the tf.
-      tf::StampedTransform tf_to_global;
-      tf::TransformListener listener;
+      tf_compat::Transform tf_to_global;
       try {
-        listener.waitForTransform(planning_params_.global_frame_id,
-                                  polygon_msgs.header.frame_id, rclcpp::Time(0),
-                                  rclcpp::Duration::from_seconds(0.1));  // this should be fast.
-        listener.lookupTransform(planning_params_.global_frame_id,
-                                 polygon_msgs.header.frame_id, rclcpp::Time(0),
-                                 tf_to_global);
+        ros2_compat::lookupTransform(planning_params_.global_frame_id,
+                                     polygon_msgs.header.frame_id, tf_to_global,
+                                     0.1);  // this should be fast.
         for (int i = 0; i < polygon_msgs.polygon.points.size(); ++i) {
           tf_compat::Vector3 poly_in_global;
           poly_in_global.setValue(polygon_msgs.polygon.points[i].x,
@@ -9264,7 +9254,7 @@ void Rrg::addGeofenceAreas(const geometry_msgs::msg::PolygonStamped& polygon_msg
           polygon.points.push_back(p32);
         }
         geofence_manager_->addGeofenceArea(polygon);
-      } catch (tf::TransformException ex) {
+      } catch (const tf2::TransformException& ex) {
         ROS_WARN_COND(global_verbosity >= Verbosity::WARN, 
             "Could not look up TF from polygon frame [%s] to the global frame "
             "[%s].",
@@ -9449,15 +9439,10 @@ std::vector<geometry_msgs::msg::Pose> Rrg::searchPathToPassGate() {
   // Check if loading intial guess from tag detection or yaml file.
   if (darpa_gate_params_.load_from_darpa_frame) {
     // Look up the tf.
-    tf::StampedTransform tfW2G;
-    tf::TransformListener listener;
+    tf_compat::Transform tfW2G;
     try {
-      listener.waitForTransform(darpa_gate_params_.world_frame_id,
-                                darpa_gate_params_.gate_center_frame_id,
-                                rclcpp::Time(0), rclcpp::Duration::from_seconds(1.0));
-      listener.lookupTransform(darpa_gate_params_.world_frame_id,
-                               darpa_gate_params_.gate_center_frame_id,
-                               rclcpp::Time(0), tfW2G);
+      ros2_compat::lookupTransform(darpa_gate_params_.world_frame_id,
+                                   darpa_gate_params_.gate_center_frame_id, tfW2G, 1.0);
       tf_compat::Vector3 vec = tfW2G.getOrigin();
       gate_center << vec.x(), vec.y(), vec.z();
       if(global_verbosity >= Verbosity::INFO) {
@@ -9470,7 +9455,7 @@ std::vector<geometry_msgs::msg::Pose> Rrg::searchPathToPassGate() {
       if(global_verbosity >= Verbosity::INFO) {
         std::cout << "Darpa gate center: " << gate_center << std::endl;
       }
-    } catch (tf::TransformException ex) {
+    } catch (const tf2::TransformException& ex) {
       ROS_ERROR_COND(global_verbosity >= Verbosity::ERROR, "%s", ex.what());
       ROS_WARN_COND(global_verbosity >= Verbosity::WARN, "Could not look up TF for gate center.");
       return ret_path;
@@ -9581,7 +9566,7 @@ std::vector<geometry_msgs::msg::Pose> Rrg::searchPathToPassGate() {
   return ret_path;
 }
 
-void Rrg::cameraAnnotationTimerCallback(const ros::TimerEvent& event) {
+void Rrg::cameraAnnotationTimerCallback(const ros2_compat::TimerEvent& event) {
   if(!planning_params_.annotate_map_with_camera) return;
 
   // ROS_WARN("Camera annotation enabled");

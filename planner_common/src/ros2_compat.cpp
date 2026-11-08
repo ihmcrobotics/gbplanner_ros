@@ -2,6 +2,10 @@
 
 #include <sstream>
 
+#include <tf2/exceptions.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
+
 namespace ros2_compat {
 
 namespace {
@@ -36,9 +40,40 @@ bool lookup(const std::string& name, rclcpp::Parameter& parameter) {
          parameter.get_type() != rclcpp::ParameterType::PARAMETER_NOT_SET;
 }
 
+struct TransformLookup {
+  std::shared_ptr<tf2_ros::Buffer> buffer;
+  std::shared_ptr<tf2_ros::TransformListener> listener;
+};
+
+TransformLookup& transformLookup() {
+  static TransformLookup lookup;
+  return lookup;
+}
+
 }  // namespace
 
-void setNode(const rclcpp::Node::SharedPtr& node) { storedNode() = node; }
+void lookupTransform(const std::string& target_frame, const std::string& source_frame,
+                     tf2::Transform& transform, double timeout_seconds) {
+  auto& lookup = transformLookup();
+  if (!lookup.buffer) throw tf2::TransformException("No node to look up transforms with");
+  const auto stamped = lookup.buffer->lookupTransform(
+      target_frame, source_frame, tf2::TimePointZero,
+      std::chrono::duration_cast<tf2::Duration>(std::chrono::duration<double>(timeout_seconds)));
+  const auto& t = stamped.transform;
+  transform = tf2::Transform(tf2::Quaternion(t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w),
+                             tf2::Vector3(t.translation.x, t.translation.y, t.translation.z));
+}
+
+void setNode(const rclcpp::Node::SharedPtr& node) {
+  storedNode() = node;
+  auto& lookup = transformLookup();
+  lookup.listener.reset();
+  lookup.buffer.reset();
+  if (node) {
+    lookup.buffer = std::make_shared<tf2_ros::Buffer>(node->get_clock());
+    lookup.listener = std::make_shared<tf2_ros::TransformListener>(*lookup.buffer, node, true);
+  }
+}
 
 rclcpp::Node::SharedPtr node() { return storedNode(); }
 

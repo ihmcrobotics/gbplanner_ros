@@ -16,6 +16,7 @@ set(PLANNER_COMMON_DEPENDENCIES
   visualization_msgs
   tf2
   tf2_geometry_msgs
+  tf2_ros
   pcl_conversions
   kdtree
   planner_msgs

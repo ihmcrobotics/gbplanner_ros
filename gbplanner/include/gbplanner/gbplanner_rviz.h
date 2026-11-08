@@ -22,7 +22,7 @@
 
 class Visualization {
  public:
-  Visualization(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private);
+  Visualization(const ros2_compat::NodeHandle& nh, const ros2_compat::NodeHandle& nh_private);
   // Visualize planning workspace including global and local bounds.
   void visualizeWorkspace(StateVec& state, BoundedSpaceParams& global_ws,
                           BoundedSpaceParams& local_ws);
@@ -118,38 +118,38 @@ class Visualization {
   void visualizeViewpoints(std::vector<StateVec>& viewpoints);
 
  private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle nh_private_;
+  ros2_compat::NodeHandle nh_;
+  ros2_compat::NodeHandle nh_private_;
 
-  ros::Publisher planning_workspace_pub_;
-  ros::Publisher no_gain_zone_pub_;
-  ros::Publisher robot_state_pub_;
-  ros::Publisher planning_graph_pub_;
-  ros::Publisher planning_projected_graph_pub_;
-  ros::Publisher planning_failed_pub_;
-  ros::Publisher sampler_pub_;
-  ros::Publisher geofence_pub_;
-  ros::Publisher sensor_fov_pub_;
-  ros::Publisher volumetric_gain_pub_;
-  ros::Publisher rays_pub_;
-  ros::Publisher negative_edges_pub_;
-  ros::Publisher shortest_paths_pub_;
-  ros::Publisher best_planning_path_pub_;
-  ros::Publisher ref_path_pub_;
-  ros::Publisher ref_path_color_pub_;
-  ros::Publisher mod_path_pub_;
-  ros::Publisher blind_mod_path_pub_;
-  ros::Publisher planning_global_graph_pub_;
-  ros::Publisher planning_homing_pub_;
-  ros::Publisher planning_global_pub_;
-  ros::Publisher hyperplanes_pub_;
-  ros::Publisher clustered_paths_pub_;
-  ros::Publisher state_history_pub_;
-  ros::Publisher pcl_pub_;
-  ros::Publisher path_pub_;
-  ros::Publisher opening_traversal_path_pub_;
-  ros::Publisher graph_vertices_pub_;
-  ros::Publisher viewpoints_pub_;
+  ros2_compat::Publisher planning_workspace_pub_;
+  ros2_compat::Publisher no_gain_zone_pub_;
+  ros2_compat::Publisher robot_state_pub_;
+  ros2_compat::Publisher planning_graph_pub_;
+  ros2_compat::Publisher planning_projected_graph_pub_;
+  ros2_compat::Publisher planning_failed_pub_;
+  ros2_compat::Publisher sampler_pub_;
+  ros2_compat::Publisher geofence_pub_;
+  ros2_compat::Publisher sensor_fov_pub_;
+  ros2_compat::Publisher volumetric_gain_pub_;
+  ros2_compat::Publisher rays_pub_;
+  ros2_compat::Publisher negative_edges_pub_;
+  ros2_compat::Publisher shortest_paths_pub_;
+  ros2_compat::Publisher best_planning_path_pub_;
+  ros2_compat::Publisher ref_path_pub_;
+  ros2_compat::Publisher ref_path_color_pub_;
+  ros2_compat::Publisher mod_path_pub_;
+  ros2_compat::Publisher blind_mod_path_pub_;
+  ros2_compat::Publisher planning_global_graph_pub_;
+  ros2_compat::Publisher planning_homing_pub_;
+  ros2_compat::Publisher planning_global_pub_;
+  ros2_compat::Publisher hyperplanes_pub_;
+  ros2_compat::Publisher clustered_paths_pub_;
+  ros2_compat::Publisher state_history_pub_;
+  ros2_compat::Publisher pcl_pub_;
+  ros2_compat::Publisher path_pub_;
+  ros2_compat::Publisher opening_traversal_path_pub_;
+  ros2_compat::Publisher graph_vertices_pub_;
+  ros2_compat::Publisher viewpoints_pub_;
 
   std::string world_frame_id = "world";
   // 0 = infinite

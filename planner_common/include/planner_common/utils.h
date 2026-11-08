@@ -52,7 +52,7 @@ inline void convert(const geometry_msgs::msg::Pose &p, Eigen::Matrix<double, 5, 
 	st[2] = p.position.z;
 	// st[3] = tf_compat::getYaw(p.orientation);
 	tf_compat::Quaternion quat(p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w);
-	tfScalar yaw, pitch, roll;
+	tf2Scalar yaw, pitch, roll;
 	tf_compat::Matrix3x3 mat(quat);
 	mat.getEulerYPR(yaw, pitch, roll);
 	st[3] = yaw;
