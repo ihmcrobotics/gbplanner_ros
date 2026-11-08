@@ -11,7 +11,7 @@ class MapManager {
  public:
   
 
-  MapManager(ros::NodeHandle& nh, ros::NodeHandle& nh_private);
+  MapManager(rclcpp::Node::SharedPtr& nh, rclcpp::Node::SharedPtr& nh_private);
 
   double getResolution();
   bool getStatus();
@@ -85,8 +85,8 @@ class MapManager {
   void setLineCheckMethod(int m);
 
  private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle nh_private_;
+  rclcpp::Node::SharedPtr nh_;
+  rclcpp::Node::SharedPtr nh_private_;
 
   std::shared_ptr<MapManagerVoxblox<MapManagerVoxbloxServer, MapManagerVoxbloxVoxel>> map_manager_impl_;
 };

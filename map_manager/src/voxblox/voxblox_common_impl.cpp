@@ -16,7 +16,7 @@ MapManagerVoxblox<voxblox::EsdfServer, voxblox::EsdfVoxel>::getSDFLayer() {
 
 template <typename SDFServerType, typename SDFVoxelType>
 MapManagerVoxblox<SDFServerType, SDFVoxelType>::MapManagerVoxblox(
-    ros::NodeHandle& nh, ros::NodeHandle& nh_private)
+    rclcpp::Node::SharedPtr& nh, rclcpp::Node::SharedPtr& nh_private)
     : sdf_server_(nh, nh_private),
       occupancy_distance_voxelsize_factor_(1.0F) {
   sdf_layer_ = getSDFLayer();
@@ -24,13 +24,15 @@ MapManagerVoxblox<SDFServerType, SDFVoxelType>::MapManagerVoxblox(
   interpolator_ = new voxblox::Interpolator<SDFVoxelType>(sdf_layer_);
 
   // Get local parameters from passed nodehandle
-  if (!nh_private.getParam("occupancy_distance_voxelsize_factor",
-                           occupancy_distance_voxelsize_factor_)) {
+  if (!nh_private->has_parameter("occupancy_distance_voxelsize_factor")) {
     ROS_INFO_COND(global_verbosity >= Verbosity::INFO,
                   "MapManagerVoxblox: failed to find parameter for "
                   "occupancy_distance_voxelsize_factor, using default of: %f",
                   occupancy_distance_voxelsize_factor_);
   }
+  occupancy_distance_voxelsize_factor_ = static_cast<float>(declare_or_get_parameter(
+      nh_private, "occupancy_distance_voxelsize_factor",
+      static_cast<double>(occupancy_distance_voxelsize_factor_)));
 
   // Setup E/TsdfIntegratorBase::Config and object separately (also called in
   // e/tsdf_server_ ctor)

@@ -1,6 +1,6 @@
 #include "map_manager/map_manager.h"
 
-MapManager::MapManager(ros::NodeHandle& nh, ros::NodeHandle& nh_private)
+MapManager::MapManager(rclcpp::Node::SharedPtr& nh, rclcpp::Node::SharedPtr& nh_private)
   : nh_(nh), nh_private_(nh_private) 
 {
   map_manager_impl_ = std::make_shared<MapManagerVoxblox<MapManagerVoxbloxServer, MapManagerVoxbloxVoxel>>(nh, nh_private);

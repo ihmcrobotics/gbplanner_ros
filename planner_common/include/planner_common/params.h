@@ -9,15 +9,17 @@
 #include <vector>
 
 #include <eigen3/Eigen/Dense>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <nav_msgs/Odometry.h>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <pcl/common/transforms.h>
-#include <pcl_ros/point_cloud.h>
-#include <ros/ros.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include "planner_common/ros2_compat.h"
 
-typedef ros::Time TIMER;
-#define START_TIMER(x) (x = ros::Time::now())
-#define GET_ELAPSED_TIME(x) (float)((ros::Time::now() - x).toSec())
+typedef rclcpp::Time TIMER;
+#define START_TIMER(x) (x = ros2_compat::now())
+#define GET_ELAPSED_TIME(x) (float)((ros2_compat::now() - x).seconds())
 
 enum Verbosity { SILENT = 0, PLANNER_STATUS = 1, ERROR = 2, WARN = 3, INFO = 4, DEBUG = 5 };
 

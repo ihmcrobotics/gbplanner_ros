@@ -1,6 +1,6 @@
 #include <gflags/gflags.h>
 #include <glog/logging.h>
-#include <ros/ros.h>
+#include "planner_common/ros2_compat.h"
 
 #include "gbplanner/gbplanner_ros.h"
 
