@@ -158,9 +158,15 @@ void Rrg::reset() {
   if (robot_params_.type == RobotType::kGroundRobot) {
     VoxelStatus vs;
     Eigen::Vector3d root_pos = root_state.head(3);
-    double ground_height = projectSampleEleMap(root_pos, vs);
-    root_state(2) += (planning_params_.max_ground_height - ground_height);
-    root_state(2) = root_pos(2);
+    projectSampleEleMap(root_pos, vs);
+    if (vs == VoxelStatus::kOccupied) {
+      root_state(2) = root_pos(2);
+    } else {
+      // The ground under the robot is not seen (a walking robot's cameras look ahead of its
+      // feet): convert the odometry frame's height to the planning height, as the global
+      // planner does.
+      root_state(2) -= (planning_params_.robot_height - planning_params_.max_ground_height);
+    }
   }
 
   // Create a root vertex and add to the graph.
@@ -585,7 +591,30 @@ double Rrg::projectSampleEleMap(Eigen::Vector3d& sample,
 
   if (!ele_map_.exists("elevation"))
   {
-    ROS_WARN("No 'elevation' layer in map.");
+    // No elevation map: find the ground in the voxel map, as GBPlanner 2 did, and return what
+    // the elevation map path returns: the planning height above ground, 0 when the ground is
+    // unknown below the sample (hanging), or -1 when there is no ground within reach.
+    ROS_WARN_ONCE("No elevation map on elevation_map: projecting samples onto the voxel map.");
+    // Walk down the voxel column under the sample, up to 3 m below the planning height. Walking
+    // whole voxels, not fixed steps from the sample's height, gives the same ground for the same
+    // x and y whatever height a point starts at, as an elevation map does: the edge check
+    // compares points with no horizontal distance between them, where any difference is steep.
+    const double resolution = map_manager_->getResolution();
+    const long top = static_cast<long>(std::floor(sample(2) / resolution));
+    const long bottom = static_cast<long>(
+        std::floor((sample(2) - planning_params_.max_ground_height - 3.0) / resolution));
+    for (long index = top; index >= bottom; --index) {
+      const Eigen::Vector3d center(sample(0), sample(1), (index + 0.5) * resolution);
+      voxel_status = map_manager_->getVoxelStatus(center);
+      if (voxel_status == VoxelStatus::kUnknown) return 0.0;
+      if (voxel_status == VoxelStatus::kOccupied) {
+        // The surface is the voxel's distance below its centre, so the ground height does
+        // not jump by whole voxels between nearby points
+        sample(2) = center(2) - map_manager_->getVoxelDistance(center) +
+                    planning_params_.max_ground_height;
+        return planning_params_.max_ground_height;
+      }
+    }
     voxel_status = VoxelStatus::kFree;
     return -1.0;
   }
