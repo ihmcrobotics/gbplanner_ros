@@ -74,9 +74,10 @@ VoxelStatus MapManager::getPathStatus(const Eigen::Vector3d& start,
 }
 
 bool MapManager::augmentFreeBox(const Eigen::Vector3d& position,
-                            const Eigen::Vector3d& box_size)
+                            const Eigen::Vector3d& box_size,
+                            bool clear_occupied)
 {
-  return map_manager_impl_->augmentFreeBox(position, box_size);
+  return map_manager_impl_->augmentFreeBox(position, box_size, clear_occupied);
 }
 
 void MapManager::getFreeSpacePointCloud(std::vector<Eigen::Vector3d> multiray_endpoints, StateVec state,

@@ -152,7 +152,8 @@ class MapManagerVoxblox {
                             bool stop_at_unknown_voxel);
 
   bool augmentFreeBox(const Eigen::Vector3d& position,
-                      const Eigen::Vector3d& box_size);
+                      const Eigen::Vector3d& box_size,
+                      bool clear_occupied = false);
   void getScanStatus(
       Eigen::Vector3d& pos, std::vector<Eigen::Vector3d>& multiray_endpoints,
       std::tuple<int, int, int>& gain_log,
@@ -224,6 +225,7 @@ class MapManagerVoxblox {
   voxblox::Layer<SDFVoxelType>* getSDFLayer();
   bool checkUnknownStatus(const SDFVoxelType*);
   void clearIfUnknown(SDFVoxelType& voxel);
+  void clearVoxel(SDFVoxelType& voxel);
 
   SDFServerType sdf_server_;
   voxblox::Layer<SDFVoxelType>* sdf_layer_;

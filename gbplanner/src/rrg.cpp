@@ -199,12 +199,14 @@ void Rrg::reset() {
         ROS_INFO_COND(global_verbosity >= Verbosity::DEBUG, "Current box contains Unknown voxels.");
         break;
     }
-    // Assume that even it is not fully free, but safe to clear these voxels.
+    // The robot is standing in this box, so it is free. Clear occupied voxels too: ones mapped
+    // before the robot got here (a door that swung through, an arm reaching out) stay hidden behind
+    // its body, so no new observation would ever clear them, and every edge from here would fail.
     ROS_WARN_COND(global_verbosity >= Verbosity::WARN, "Starting position is not clear--> clear space around the robot.");
     map_manager_->augmentFreeBox(
         Eigen::Vector3d(root_state[0], root_state[1], root_state[2]) +
             robot_params_.center_offset,
-        robot_box_size_);
+        robot_box_size_, true);
   }
 
   // Set robot radius when single point collision checking is used
@@ -7605,7 +7607,8 @@ void Rrg::timerCallback(const ros2_compat::TimerEvent& event) {
   auto t2 = t1;
 
   if (!odometry_ready) {
-    ROS_WARN_COND(global_verbosity >= Verbosity::WARN, "Planner is waiting for odometry");
+    // Every 10 s, not every tick, while the robot isn't publishing /odometry yet
+    ROS_WARN_THROTTLE(10.0, "Planner is waiting for odometry");
     return;
   }
 

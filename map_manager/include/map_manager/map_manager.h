@@ -35,8 +35,10 @@ class MapManager {
                                     const Eigen::Vector3d& end,
                                     const Eigen::Vector3d& box_size,
                                     bool stop_at_unknown_voxel);
+  // Marks the box's unknown voxels free, and its occupied ones too when clear_occupied is set
   bool augmentFreeBox(const Eigen::Vector3d& position,
-                              const Eigen::Vector3d& box_size);
+                              const Eigen::Vector3d& box_size,
+                              bool clear_occupied = false);
 
   void getScanStatus(
       Eigen::Vector3d& pos, std::vector<Eigen::Vector3d>& multiray_endpoints,

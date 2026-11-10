@@ -332,6 +332,24 @@ void MapManagerVoxblox<SDFServerType, SDFVoxelType>::clearIfUnknown(
   }
 }
 
+// Marks a voxel free whatever it held, with the smallest weight so the next real observation
+// replaces it
+template <typename SDFServerType, typename SDFVoxelType>
+void MapManagerVoxblox<SDFServerType, SDFVoxelType>::clearVoxel(
+    SDFVoxelType& voxel) {
+  voxel.weight = 1e-3 + 1e-6;
+  voxel.distance = tsdf_integrator_config_.default_truncation_distance;
+}
+
+// ESDF
+template <>
+void MapManagerVoxblox<voxblox::EsdfServer, voxblox::EsdfVoxel>::clearVoxel(
+    voxblox::EsdfVoxel& voxel) {
+  voxel.observed = true;
+  voxel.hallucinated = true;
+  voxel.distance = esdf_integrator_config_.default_distance_m;
+}
+
 // ESDF
 template <>
 void MapManagerVoxblox<voxblox::EsdfServer, voxblox::EsdfVoxel>::clearIfUnknown(
@@ -345,7 +363,8 @@ void MapManagerVoxblox<voxblox::EsdfServer, voxblox::EsdfVoxel>::clearIfUnknown(
 
 template <typename SDFServerType, typename SDFVoxelType>
 bool MapManagerVoxblox<SDFServerType, SDFVoxelType>::augmentFreeBox(
-    const Eigen::Vector3d& position, const Eigen::Vector3d& box_size) {
+    const Eigen::Vector3d& position, const Eigen::Vector3d& box_size,
+    bool clear_occupied) {
   voxblox::HierarchicalIndexMap block_voxel_list;
   voxblox::utils::getAndAllocateBoxAroundPoint(
       position.cast<voxblox::FloatingPoint>(), box_size, sdf_layer_,
@@ -361,8 +380,12 @@ bool MapManagerVoxblox<SDFServerType, SDFVoxelType>::augmentFreeBox(
         continue;
       }
       SDFVoxelType& voxel = block_ptr->getVoxelByVoxelIndex(voxel_index);
-      // Clear voxels that haven't been cleared yet
-      clearIfUnknown(voxel);
+      // Clear voxels that haven't been cleared yet, and occupied ones when asked
+      if (clear_occupied) {
+        clearVoxel(voxel);
+      } else {
+        clearIfUnknown(voxel);
+      }
     }
   }
   return true;
